@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>손가락 슬라이더로 LED 밝기 조절 - 임베디드시스템개론</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      color: #222;
+      background: #f6f7f9;
+      line-height: 1.7;
+    }
+    header {
+      background: #1f2933;
+      color: #fff;
+      padding: 36px 20px 28px;
+    }
+    header .wrap, main { max-width: 860px; margin: 0 auto; }
+    header h1 { margin: 0 0 6px; font-size: 26px; }
+    header p { margin: 2px 0; color: #cbd2d9; font-size: 15px; }
+    main { padding: 10px 20px 60px; }
+    section {
+      background: #fff;
+      border: 1px solid #e4e7eb;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-top: 20px;
+    }
+    h2 { font-size: 19px; margin: 0 0 12px; border-left: 4px solid #e12d39; padding-left: 10px; }
+    h3 { font-size: 16px; margin: 18px 0 6px; }
+    .links a {
+      display: inline-block;
+      margin: 4px 6px 4px 0;
+      padding: 9px 16px;
+      border-radius: 6px;
+      background: #1f2933;
+      color: #fff;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .links a.main { background: #e12d39; }
+    .video {
+      position: relative;
+      padding-top: 56.25%;
+      background: #000;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .note {
+      background: #fff8e6;
+      border: 1px solid #f5d98b;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 14px;
+    }
+    pre {
+      background: #1f2933;
+      color: #e4e7eb;
+      padding: 12px 14px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    code { font-family: Menlo, Consolas, monospace; }
+    p code, li code, td code { background: #eef1f4; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+    table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 8px 0; }
+    th, td { border: 1px solid #e4e7eb; padding: 6px 10px; text-align: center; }
+    th { background: #f0f2f5; }
+    ul { padding-left: 20px; }
+    footer { text-align: center; color: #7b8794; font-size: 13px; padding: 20px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>손가락 슬라이더로 LED 밝기 조절하기</h1>
+    <p>임베디드시스템개론 미션 · p5.js / ml5 HandPose / Wokwi</p>
+    <p>최병 (학번: ________)</p>
+  </div>
+</header>
+
+<main>
+
+  <section>
+    <h2>결과물</h2>
+    <div class="links">
+      <a class="main" href="p5/">데모 실행하기 (웹캠 필요)</a>
+      <a href="https://wokwi.com/projects/479547469778122753">Wokwi 회로</a>
+      <a href="https://youtu.be/RQif6lCfpDE">시연 영상 (YouTube)</a>
+      <a href="https://github.com/cbkdream/finger-slider-led">소스 코드 (GitHub)</a>
+    </div>
+    <p class="note">출장 중이어서 아두이노 보드가 없어 출력 원리를 소프트웨어적으로 시뮬레이션했습니다.
+      LED는 p5 화면 안의 가상 LED로 구현했고, 아두이노 코드와 회로는 Wokwi에서 확인했습니다.</p>
+  </section>
+
+  <section>
+    <h2>시연 영상</h2>
+    <div class="video">
+      <iframe src="https://www.youtube.com/embed/RQif6lCfpDE" title="시연 영상"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+    </div>
+  </section>
+
+  <section>
+    <h2>1. 개요</h2>
+    <p>웹캠으로 손을 인식해서 엄지와 검지 사이 거리로 슬라이더 값을 바꾸고, 그 값으로 LED 밝기를 조절했습니다.
+      슬라이더 값(0~255)에 따라 화면 가운데 가상 LED의 투명도(alpha)와 크기가 바뀌고, 아래쪽에 PWM 파형과 시리얼 송수신 내용이 표시됩니다.</p>
+    <pre><code>웹캠 → HandPose(점 21개) → 중지 접었는지 확인 → 엄지-검지 거리 계산
+     → 슬라이더(0~255) → "B:값" 전송 → 아두이노(가상) → LED 밝기</code></pre>
+    <h3>사용 방법</h3>
+    <ul>
+      <li>데모 페이지를 Chrome으로 열고 카메라 권한을 허용합니다.</li>
+      <li>중지를 접은 상태에서 엄지와 검지를 벌리면 밝아지고, 오므리면 어두워집니다.</li>
+      <li>중지를 펴면 값이 고정됩니다. (마우스로 슬라이더 조절 가능)</li>
+      <li><code>C</code> 키: LED 색 변경, <code>S</code> 키: 화면 저장</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>2. 구현 내용</h2>
+
+    <h3>손 인식</h3>
+    <p><code>ml5.handPose()</code>로 모델을 불러오고 <code>detectStart(video, gotHands)</code>로 인식을 시작했습니다.
+      사용한 점은 손목(0), 엄지 끝(4), 검지 끝(8), 중지 뿌리(9), 중지 끝(12)입니다.</p>
+
+    <h3>주먹 모드</h3>
+    <p>손목~중지 끝 거리가 손바닥 길이(손목~중지 뿌리)보다 짧으면 중지를 접은 것으로 보고, 이때만 슬라이더를 움직입니다.</p>
+
+    <h3>거리 → LED 값</h3>
+    <p>엄지-검지 거리를 손바닥 길이로 나눠 비율로 만들었습니다. 카메라와의 거리가 달라도 같은 손 모양이면 비슷한 값이 나옵니다.</p>
+    <pre><code>let s = round(100 * (v / p)) - 15;      // v: 엄지-검지, p: 손바닥
+s = constrain(s, 0, 100);
+return round(map(s, 0, 100, 0, 255));   // LED 값 0~255</code></pre>
+
+    <h3>슬라이더 움직임 보정</h3>
+    <p>떨림을 줄이려고 목표값과의 차이 중 20%씩만 움직이게 했는데, 슬라이더가 정수 단위라 목표 근처에서 멈추는 문제가 있었습니다(50 → 90일 때 88에서 멈춤).
+      차이가 3보다 작으면 바로 목표값으로 맞추도록 했습니다.</p>
+    <pre><code>let next = c + 0.2 * (v - c);
+if (abs(v - c) &lt; 3) next = v;
+slider.value(next);</code></pre>
+
+    <h3>가상 시리얼 / 가상 아두이노</h3>
+    <p>슬라이더 값을 바로 LED에 쓰지 않고 <code>"B:값"</code> 문자열을 만들어 <code>virtualArduino()</code>에 넘기고,
+      이 함수가 LED 값을 정한 뒤 <code>"PWM:값"</code>을 돌려줍니다. Wokwi 아두이노 코드와 같은 형식입니다.
+      값이 바뀔 때만, 50ms 간격으로 보내도록 했습니다.</p>
+
+    <h3>가상 LED</h3>
+    <p>꺼진 회색 LED를 먼저 그리고, 그 위에 <code>fill(r, g, b, 값)</code>으로 색을 겹쳐 그렸습니다. 크기와 빛 번짐도 값에 따라 커집니다.</p>
+    <table>
+      <tr><th>값</th><td>0</td><td>64</td><td>128</td><td>191</td><td>255</td></tr>
+      <tr><th>듀티비</th><td>0%</td><td>25%</td><td>50%</td><td>75%</td><td>100%</td></tr>
+      <tr><th>크기(px)</th><td>70</td><td>80</td><td>90</td><td>100</td><td>110</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>3. Wokwi 회로</h2>
+    <pre><code>D9 ── 220Ω ── LED(+)    LED(-) ── GND</code></pre>
+    <p>시리얼로 한 줄씩 받아서 <code>B:값</code> 형식이면 <code>analogWrite(9, 값)</code>을 하고 <code>PWM:값</code>을 출력합니다.
+      시리얼 모니터에 <code>B:0</code>, <code>B:64</code>, <code>B:255</code>를 입력해 LED 밝기가 바뀌는 것을 확인했습니다.</p>
+    <pre><code>void handleLine(const char *line) {
+  if (line[0] != 'B' || line[1] != ':') return;
+  int value = constrain(atoi(line + 2), 0, 255);
+  analogWrite(LED_PIN, value);
+  Serial.print("PWM:");
+  Serial.println(value);
+}</code></pre>
+    <div class="links"><a href="https://wokwi.com/projects/479547469778122753">Wokwi에서 직접 실행해 보기</a></div>
+  </section>
+
+  <section>
+    <h2>4. 고찰</h2>
+    <ul>
+      <li>손이 조금만 흔들려도 LED가 깜빡거렸는데 20%씩 움직이게 하니 부드러워졌습니다. 대신 정수 반올림 때문에 목표값에 못 가는 문제를 따로 처리해야 했습니다.</li>
+      <li>거리를 손바닥 길이로 나누는 방법 덕분에 카메라와의 거리가 달라도 값이 크게 바뀌지 않았습니다. 다만 손을 기울이면 값이 올라갔습니다.</li>
+      <li>보드 없이 가상으로 만들었지만 문자열로 보내고 받는 과정을 거치게 해서, 보드가 생기면 전송 부분만 바꾸면 되도록 했습니다.</li>
+      <li>PWM 파형을 같이 그려 보니 LED 밝기가 켜져 있는 시간의 비율이라는 것을 이해하기 쉬웠습니다.</li>
+      <li>개선할 점: 양손으로 LED 두 개를 따로 조절하기, 어두운 곳에서 인식이 불안정할 때 값을 바꾸지 않게 하기.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>참고</h2>
+    <ul>
+      <li>수업 자료: p5와 ml5 – 손가락 슬라이더 (최병조 교수)</li>
+      <li><a href="https://editor.p5js.org/bjc97r/sketches/P4OTM37JK">손가락 슬라이더 예제</a> ·
+        <a href="https://editor.p5js.org/bjc97r/sketches/04Ur1M6iy">시리얼 예제</a></li>
+      <li><a href="https://ml5js.org/">ml5.js</a> · <a href="https://wokwi.com/">Wokwi</a></li>
+    </ul>
+  </section>
+
+</main>
+
+<footer>임베디드시스템개론 · 인천대학교 임베디드시스템공학과</footer>
+
+</body>
+</html>
