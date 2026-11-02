@@ -3,14 +3,58 @@
   "author": "CHOI BYUNG",
   "editor": "wokwi",
   "parts": [
-    { "type": "wokwi-arduino-uno", "id": "uno", "top": 0, "left": 0, "attrs": {} },
-    { "type": "wokwi-resistor", "id": "r1", "top": -70, "left": 170, "rotate": 0, "attrs": { "value": "220" } },
-    { "type": "wokwi-led", "id": "led1", "top": -140, "left": 260, "attrs": { "color": "red" } }
+    {
+      "type": "wokwi-arduino-uno",
+      "id": "uno",
+      "top": 140,
+      "left": 0,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": 0,
+      "left": 96,
+      "attrs": {
+        "color": "red"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 72,
+      "left": 130,
+      "rotate": 90,
+      "attrs": {
+        "value": "220"
+      }
+    }
   ],
   "connections": [
-    [ "uno:9", "r1:1", "green", [ "v-40", "h0" ] ],
-    [ "r1:2", "led1:A", "green", [ "h0" ] ],
-    [ "led1:C", "uno:GND.1", "black", [ "v40", "h-150" ] ]
+    [
+      "led1:C",
+      "uno:GND.1",
+      "black",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "led1:A",
+      "r1:1",
+      "green",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "r1:2",
+      "uno:9",
+      "green",
+      [
+        "v0"
+      ]
+    ]
   ],
   "dependencies": {}
 }
