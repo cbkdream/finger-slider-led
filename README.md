@@ -2,7 +2,7 @@
 
 임베디드시스템개론 미션 (p5.js, ml5 HandPose)
 
-- 이름: 최병 / 학번: ________
+- 이름: 최병기 / 학번: 202535004
 - 결과 페이지: https://cbkdream.github.io/finger-slider-led/
 - 데모 실행: https://cbkdream.github.io/finger-slider-led/p5/
 - Wokwi 회로: https://wokwi.com/projects/479547469778122753
